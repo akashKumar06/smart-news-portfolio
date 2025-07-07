@@ -1,97 +1,56 @@
-// smart-news-portfolio/backend/src/services/aiService.js
+import axios from "axios";
 
-import { spawn } from "child_process";
-import path from "path";
-import { fileURLToPath } from "url";
-
-const __filename = fileURLToPath(import.meta.url);
-const __dirname = path.dirname(__filename);
-
-const PYTHON_SCRIPT_PATH = path.join(
-  __dirname,
-  "../../../ai_sentiment_python/analyze_sentiment.py"
-);
-const PYTHON_EXECUTABLE =
-  process.platform === "win32"
-    ? path.join(
-        __dirname,
-        "../../../ai_sentiment_python/venv/Scripts/python.exe"
-      )
-    : path.join(__dirname, "../../../ai_sentiment_python/venv/bin/python");
+const SENTIMENT_API_URL = process.env.SENTIMENT_API_URL;
 
 export async function analyzeSentiment(text) {
-  return new Promise((resolve, reject) => {
-    const pythonProcess = spawn(PYTHON_EXECUTABLE, [PYTHON_SCRIPT_PATH, text]);
+  if (!SENTIMENT_API_URL) {
+    console.error(
+      "SENTIMENT_API_URL environment variable is not set. Cannot perform sentiment analysis."
+    );
+    throw new Error("Sentiment analysis service URL is not configured.");
+  }
 
-    let pythonOutput = "";
-    let pythonError = "";
+  try {
+    const response = await axios.post(`${SENTIMENT_API_URL}/analyze`, { text });
 
-    pythonProcess.stdout.on("data", (data) => {
-      pythonOutput += data.toString();
-    });
+    const result = response.data;
 
-    pythonProcess.stderr.on("data", (data) => {
-      pythonError += data.toString();
-    });
-
-    pythonProcess.on("close", (code) => {
-      if (code !== 0) {
-        console.error(
-          `Python script exited with code ${code}. Error: ${pythonError}`
-        );
-        try {
-          const errorResult = JSON.parse(pythonOutput);
-          if (errorResult.error) {
-            return reject(
-              new Error(`Python script error: ${errorResult.error}`)
-            );
-          }
-        } catch (e) {}
-        return reject(
-          new Error(
-            `Python script exited with code ${code}. Stderr: ${pythonError}. Stdout: ${pythonOutput}`
-          )
-        );
-      }
-
-      try {
-        const result = JSON.parse(pythonOutput);
-        if (result.error) {
-          console.error(
-            "Python script returned an an application error:",
-            result.error
-          );
-          return reject(
-            new Error(`Python script application error: ${result.error}`)
-          );
-        }
-
-        resolve({
-          sentiment: result.sentiment,
-          reasoning: result.reasoning,
-          compound: result.scores.compound,
-        });
-      } catch (parseError) {
-        console.error("Error parsing Python script output:", parseError);
-        console.error("Python Output:", pythonOutput);
-        console.error("Python Error (stderr):", pythonError);
-        reject(
-          new Error(
-            `Failed to parse Python script output: ${parseError.message}. Raw output: ${pythonOutput}`
-          )
-        );
-      }
-    });
-
-    pythonProcess.on("error", (err) => {
-      console.error("Failed to start Python child process:", err);
-      reject(
-        new Error(
-          `Failed to start sentiment analysis process: ${err.message}. Check Python path and script permissions.`
-        )
+    if (
+      !result ||
+      typeof result.sentiment === "undefined" ||
+      typeof result.reasoning === "undefined" ||
+      !result.scores ||
+      typeof result.scores.compound === "undefined"
+    ) {
+      throw new Error(
+        "Invalid response format from sentiment analysis service."
       );
-    });
-  });
+    }
+
+    return {
+      sentiment: result.sentiment,
+      reasoning: result.reasoning,
+      compound: result.scores.compound,
+    };
+  } catch (error) {
+    console.error(`Error calling sentiment analysis API: ${error.message}`);
+    if (error.response) {
+      console.error("Sentiment API Response Data:", error.response.data);
+      console.error("Sentiment API Response Status:", error.response.status);
+      console.error("Sentiment API Response Headers:", error.response.headers);
+      throw new Error(
+        `Sentiment API error: ${error.response.status} - ${JSON.stringify(
+          error.response.data
+        )}`
+      );
+    } else if (error.request) {
+      console.error("No response received from sentiment API:", error.request);
+      throw new Error("No response received from sentiment analysis service.");
+    } else {
+      console.error("Error setting up sentiment API request:", error.message);
+      throw new Error(`Error with sentiment API request: ${error.message}`);
+    }
+  }
 }
 
 export async function analyzeGeneralMarketSentiment(articles) {
@@ -99,6 +58,7 @@ export async function analyzeGeneralMarketSentiment(articles) {
     return {
       sentiment: "Neutral",
       reasoning: "No articles to analyze for general market sentiment.",
+      compound: 0.0,
     };
   }
 
@@ -125,6 +85,7 @@ export async function analyzeGeneralMarketSentiment(articles) {
     return {
       sentiment: "Neutral",
       reasoning: "Could not analyze sentiment for any general articles.",
+      compound: 0.0,
     };
   }
 
@@ -145,5 +106,9 @@ export async function analyzeGeneralMarketSentiment(articles) {
     overallReasoning += " The overall tone is neutral or mixed.";
   }
 
-  return { sentiment: overallSentiment, reasoning: overallReasoning };
+  return {
+    sentiment: overallSentiment,
+    reasoning: overallReasoning,
+    compound: averageCompoundScore,
+  };
 }
