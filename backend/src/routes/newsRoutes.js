@@ -185,11 +185,9 @@ router.post("/filtered", async (req, res) => {
  */
 router.get("/general-sentiment", async (req, res) => {
   try {
-    // Fetch a limited number of top general news articles to summarize
-    // You can adjust the number (e.g., 5 or 10) based on how much text you want to analyze for overall sentiment
     const generalNews = await fetchGeneralNews();
     const topHeadlines = generalNews
-      .slice(0, 5)
+      .slice(0, 10)
       .map((article) => article.title)
       .join(". "); // Join top 5 headlines
 

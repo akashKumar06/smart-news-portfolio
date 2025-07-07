@@ -27,7 +27,7 @@ function App() {
   const [errorGeneralNews, setErrorGeneralNews] = useState(null);
   const [errorMarketSentiment, setErrorMarketSentiment] = useState(null);
 
-  const backendUrl = "http://localhost:8000/api";
+  const backendUrl = import.meta.env.VITE_BACKEND_URL;
 
   const handleSymbolsChange = (e) => {
     setPortfolioSymbols(e.target.value);

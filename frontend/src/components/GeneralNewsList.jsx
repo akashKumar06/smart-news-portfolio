@@ -42,7 +42,7 @@ function GeneralNewsList({ news }) {
               {/* Source and Date */}
               <div className="flex justify-between w-full flex-wrap">
                 <p className="text-xs text-gray-500">
-                  Source: {article.sourceName || "N/A"}
+                  Source: {article.source || "N/A"}
                 </p>
                 <p className="text-xs text-gray-500">
                   Published: {publishedDate}

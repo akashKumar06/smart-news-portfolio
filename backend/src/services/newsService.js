@@ -81,6 +81,7 @@ export async function fetchGeneralNews() {
       link: article.url,
       source: article.source.name,
       date: article.publishedAt,
+      description: article.description,
     }));
 
     const cleanArticles = articles.filter(
@@ -150,7 +151,6 @@ export function filterNewsByPortfolio(articles, portfolioSymbols) {
           return regex.test(textToSearch);
         }) || "N/A",
     }));
-
   console.log(`Filtered ${filteredArticles.length} articles for portfolio.`);
   return filteredArticles;
 }
