@@ -44,7 +44,9 @@ function App() {
     setLoadingMarketSentiment(true);
     setErrorMarketSentiment(null);
     try {
-      const response = await axios.get(`${backendUrl}/news/general-sentiment`);
+      const response = await axios.get(
+        `${backendUrl}/api/news/general-sentiment`
+      );
       setMarketSentiment(response.data);
     } catch (err) {
       console.error("Error fetching general market sentiment:", err);
@@ -59,7 +61,7 @@ function App() {
     setLoadingGeneralNews(true);
     setErrorGeneralNews(null);
     try {
-      const response = await axios.get(`${backendUrl}/news/general`, {
+      const response = await axios.get(`${backendUrl}/api/news/general`, {
         params: { query: "stock market India", endpoint: "top-headlines" },
       });
       setGeneralNews(response.data);
@@ -88,7 +90,7 @@ function App() {
         return;
       }
 
-      const response = await axios.post(`${backendUrl}/news/filtered`, {
+      const response = await axios.post(`${backendUrl}/api/news/filtered`, {
         portfolioSymbols: symbolsArray,
         notificationEmail,
       });
