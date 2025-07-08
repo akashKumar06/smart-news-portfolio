@@ -114,22 +114,19 @@ function App() {
   }, [fetchMarketSentiment, fetchGeneralNewsArticles]);
 
   return (
-    <div className="h-screen w-screen bg-gray-50 flex flex-col font-sans">
+    <div className="min-h-screen w-full bg-gray-50 flex flex-col font-sans">
       <Header />
 
       <main className="flex-grow flex flex-col md:flex-row overflow-hidden">
-        <div className="w-full md:w-2/5 flex-shrink-0 overflow-y-auto p-6 space-y-6 bg-gray-100/50 border-r border-gray-200">
-          <div className="w-full">
-            <MarketSentimentDisplay
-              marketSentiment={marketSentiment}
-              loading={loadingMarketSentiment}
-              error={errorMarketSentiment}
-            />
-          </div>
+        <aside className="w-full md:w-2/5 lg:w-2/5 bg-gray-100/50 border-r border-gray-200 overflow-y-auto p-4 sm:p-6 space-y-6">
+          <MarketSentimentDisplay
+            marketSentiment={marketSentiment}
+            loading={loadingMarketSentiment}
+            error={errorMarketSentiment}
+          />
 
-          {/* Section for General News Display */}
-          <div className="w-full">
-            <h2 className="text-2xl font-semibold mb-4 text-gray-800">
+          <section>
+            <h2 className="text-xl sm:text-2xl font-semibold mb-4 text-gray-800">
               General Market News
             </h2>
             {loadingGeneralNews && (
@@ -142,32 +139,28 @@ function App() {
             {!loadingGeneralNews &&
               !errorGeneralNews &&
               generalNews.length === 0 && (
-                <p className="text-center text-gray-500 p-6 bg-white rounded-lg shadow-md">
+                <p className="text-center text-gray-500 p-4 bg-white rounded-md shadow-sm">
                   No general news available.
                 </p>
               )}
             {!loadingGeneralNews &&
               !errorGeneralNews &&
               generalNews.length > 0 && <GeneralNewsList news={generalNews} />}
-          </div>
-        </div>
+          </section>
+        </aside>
 
-        <div className="w-full md:w-3/5 overflow-y-auto p-6 space-y-6">
-          <div className="w-full">
-            <NotificationSettings initialEmail="user@example.com" />
-          </div>
+        <section className="w-full md:w-3/5 lg:w-3/5 overflow-y-auto p-4 sm:p-6 space-y-6">
+          <NotificationSettings initialEmail="user@example.com" />
 
-          <div className="w-full">
-            <PortfolioInput
-              portfolioSymbols={portfolioSymbols}
-              handleSymbolsChange={handleSymbolsChange}
-              fetchFilteredNews={fetchFilteredNews}
-              loading={loadingPortfolioNews}
-            />
-          </div>
+          <PortfolioInput
+            portfolioSymbols={portfolioSymbols}
+            handleSymbolsChange={handleSymbolsChange}
+            fetchFilteredNews={fetchFilteredNews}
+            loading={loadingPortfolioNews}
+          />
 
-          <div className="w-full">
-            <h2 className="text-2xl font-semibold mb-4 text-gray-800">
+          <div>
+            <h2 className="text-xl sm:text-2xl font-semibold mb-4 text-gray-800">
               Filtered News For Your Portfolio
             </h2>
             {loadingPortfolioNews && (
@@ -182,7 +175,7 @@ function App() {
             {!loadingPortfolioNews &&
               !errorPortfolioNews &&
               filteredNewsWithSentiment.length === 0 && (
-                <div className="text-center text-gray-500 p-6 bg-white rounded-lg shadow-md border border-gray-200">
+                <div className="text-center text-gray-500 p-4 bg-white rounded-md shadow border border-gray-200">
                   <p>No filtered news to display.</p>
                   <p className="text-sm">
                     Enter stock symbols and click "Get Portfolio News" to begin.
@@ -195,7 +188,7 @@ function App() {
                 <FilteredNewsList news={filteredNewsWithSentiment} />
               )}
           </div>
-        </div>
+        </section>
       </main>
     </div>
   );
