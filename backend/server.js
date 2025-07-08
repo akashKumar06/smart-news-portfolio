@@ -2,9 +2,12 @@ import express from "express";
 import cors from "cors";
 import newsRoutes from "./src/routes/newsRoutes.js";
 import notificationRoutes from "./src/routes/notificationRoutes.js";
+import { connectDB } from "./src/config/db.js";
 
 const app = express();
 const PORT = process.env.PORT || 8000;
+
+connectDB();
 
 app.use(cors());
 app.use(express.json());

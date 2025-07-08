@@ -1,4 +1,4 @@
-import LoadingIndicator from "./LoadingIndicator";
+import LoadingSpinner from "./LoadingSpinner";
 import ErrorMessage from "./ErrorMessage";
 
 function MarketSentimentDisplay({ marketSentiment, loading, error }) {
@@ -16,7 +16,9 @@ function MarketSentimentDisplay({ marketSentiment, loading, error }) {
   };
 
   if (loading) {
-    return <LoadingIndicator message="Loading market sentiment..." />;
+    return (
+      <LoadingSpinner color="black" message="Loading market sentiment..." />
+    );
   }
 
   if (error) {

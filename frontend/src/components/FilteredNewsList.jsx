@@ -12,7 +12,6 @@ function FilteredNewsList({ news }) {
     );
   }
 
-  // Helper to get sentiment classes and icon component
   const getSentimentProps = (sentiment) => {
     switch (sentiment) {
       case "Positive":
@@ -50,8 +49,8 @@ function FilteredNewsList({ news }) {
           textColorClass,
           icon: SentimentIcon,
         } = getSentimentProps(article.sentiment);
-        const publishedDate = article.publishedAt
-          ? new Date(article.publishedAt).toLocaleDateString()
+        const publishedDate = article.date
+          ? new Date(article.date).toLocaleDateString()
           : "N/A";
 
         return (

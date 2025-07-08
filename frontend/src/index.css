@@ -1,1 +1,15 @@
 @import "tailwindcss";
+@theme {
+  --font-roboto: "Roboto", sans-serif;
+  --color-background: #2e2e30;
+  --color-darkBackground: #1a202c;
+  --color-darkCard: #2d3748;
+  --color-darkBorder: #4a5568;
+  --color-lightText: #e2e8f0;
+  --color-mutedText: #a0aec0;
+  --color-accentGreen: #38a169;
+  --color-accentRed: #e53e3e;
+  --color-accentNeutral: #ecc94b;
+  --color-primaryButton: #4299e1;
+  --color-primaryButtonHover: #3182ce;
+}

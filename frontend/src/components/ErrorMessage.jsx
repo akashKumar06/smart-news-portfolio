@@ -1,19 +1,36 @@
-function ErrorMessage({ message }) {
+// src/components/ErrorMessage.jsx
+import React from "react";
+
+const ErrorMessage = ({ message, type = "error" }) => {
+  let bgColor = "bg-red-100";
+  let textColor = "text-red-700";
+  let borderColor = "border-red-400";
+
+  if (type === "success") {
+    bgColor = "bg-green-100";
+    textColor = "text-green-700";
+    borderColor = "border-green-400";
+  } else if (type === "warning") {
+    bgColor = "bg-yellow-100";
+    textColor = "text-yellow-700";
+    borderColor = "border-yellow-400";
+  }
+
   return (
     <div
-      className="
-            text-center p-4 rounded-lg shadow-sm
-            bg-red-100 text-red-700 border border-red-300
-            mb-5
-        "
+      className={`${bgColor} ${textColor} border ${borderColor} px-4 py-3 rounded relative`}
+      role="alert"
     >
-      <p className="font-bold mb-2">Error:</p>
-      <p>{message}</p>
-      <p className="text-sm mt-2 text-red-600">
-        Please try again or check your backend server.
-      </p>
+      <strong className="font-bold">
+        {type === "success"
+          ? "Success!"
+          : type === "warning"
+          ? "Warning!"
+          : "Error!"}
+      </strong>
+      <span className="block sm:inline ml-2">{message}</span>
     </div>
   );
-}
+};
 
 export default ErrorMessage;

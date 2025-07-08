@@ -7,7 +7,6 @@ import {
   analyzeGeneralMarketSentiment,
   analyzeSentiment,
 } from "../services/aiService.js";
-import { sendEmail } from "../services/notificationService.js";
 const router = Router();
 
 /**
@@ -36,7 +35,7 @@ router.get("/general", async (req, res) => {
  */
 
 router.post("/filtered", async (req, res) => {
-  const { portfolioSymbols, notificationEmail } = req.body;
+  const { portfolioSymbols } = req.body;
 
   if (
     !portfolioSymbols ||
@@ -92,82 +91,6 @@ router.post("/filtered", async (req, res) => {
       })
     );
 
-    // 4. Automated Notification Logic (remains the same)
-    if (notificationEmail && notificationEmail.trim() !== "") {
-      const alertsToSend = [];
-      filteredNewsWithSentiment.forEach((article) => {
-        const isStrongPositive = article.compound >= 0.6;
-        const isStrongNegative = article.compound <= -0.6;
-
-        if (isStrongPositive || isStrongNegative) {
-          alertsToSend.push(article);
-        }
-      });
-
-      if (alertsToSend.length > 0) {
-        const subject = `Smart News Portfolio Alert: ${alertsToSend.length} New Alerts for your Stocks`;
-        let htmlContent = `
-                    <p>Dear Investor,</p>
-                    <p>Here are some recent significant news alerts for your portfolio:</p>
-                    <ul>
-                `;
-        alertsToSend.forEach((article) => {
-          htmlContent += `
-                        <li>
-                            <strong>${article.sentiment} News for ${
-            article.symbol || "Your Portfolio"
-          }</strong>:
-                            <a href="${article.url}" target="_blank">${
-            article.title
-          }</a>
-                            <p>${article.description || ""}</p>
-                            ${
-                              article.reasoning
-                                ? `<p>Reasoning: ${article.reasoning}</p>`
-                                : ""
-                            }
-                            <p><em>Source: ${article.source} - ${new Date(
-            article.publishedAt
-          ).toLocaleDateString()}</em></p>
-                        </li>
-                    `;
-        });
-        htmlContent += `</ul><p>Visit your <a href="http://localhost:5173" target="_blank">Smart News Portfolio</a> for more details.</p>`;
-
-        const textContent =
-          `Smart News Portfolio Alert: ${alertsToSend.length} New Alerts\n\n` +
-          alertsToSend
-            .map(
-              (article) =>
-                `${article.sentiment} News for ${
-                  article.symbol || "Your Portfolio"
-                }:\n` +
-                `Title: ${article.title}\n` +
-                `URL: ${article.url}\n` +
-                `Description: ${article.description || ""}\n` +
-                `${
-                  article.reasoning ? `Reasoning: ${article.reasoning}\n` : ""
-                }` +
-                `Source: ${article.source} - ${new Date(
-                  article.publishedAt
-                ).toLocaleDateString()}\n\n`
-            )
-            .join("");
-
-        try {
-          await sendEmail(notificationEmail, subject, textContent, htmlContent);
-          console.log(
-            `Automated alert email sent to ${notificationEmail} for ${alertsToSend.length} articles.`
-          );
-        } catch (emailError) {
-          console.error(
-            "Failed to send automated alert email:",
-            emailError.message
-          );
-        }
-      }
-    }
-
     // 5. Send the filtered news with sentiment back to the frontend
     res.json(filteredNewsWithSentiment);
   } catch (error) {
@@ -186,18 +109,7 @@ router.post("/filtered", async (req, res) => {
 router.get("/general-sentiment", async (req, res) => {
   try {
     const generalNews = await fetchGeneralNews();
-    const topHeadlines = generalNews
-      .slice(0, 10)
-      .map((article) => article.title)
-      .join(". "); // Join top 5 headlines
-
-    if (!topHeadlines.trim()) {
-      return res.json({
-        sentiment: "Neutral",
-        reasoning:
-          "No general news headlines available to analyze for market sentiment.",
-      });
-    }
+    const topHeadlines = generalNews.slice(0, 10);
 
     const marketSentiment = await analyzeGeneralMarketSentiment(topHeadlines);
     res.json(marketSentiment);
